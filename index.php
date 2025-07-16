@@ -43,6 +43,43 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        //locad bookmarks when page loaded
+        document.addEventListener('DOMContentLoaded', function(){
+            loadBookmarks();
+        });
+
+        //function to load bookmarks form server
+        function loadBookmarks(){
+            fetch('server.php?action=get')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('bookmarksContainer');
+                container.innerHTML = '';
+
+                if(data.length === 0){
+                    container.innerHTML = 
+                    '<p class="text-muted">No bookmarks yet. Add your bookmarks!!</p>';
+                }
+
+                data.forEach(bookmark => {
+                    const col = document.createElement('div');
+                    col.className = 'col-md-4 mb-4';
+                    col.innerHTML = `
+                        <div class="card bookmark-card">
+                            <div class="card-body">
+                                <h5 class="card-title">${bookmark.title}</h5>
+                                <a href="${bookmark.url}" target="_blank" class="card-link">Visit Site</a>
+
+                                <button class="btn btn-sm btn-danger float-end">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(col);
+                });
+            });
+        }
+    </script>
 </body>
 
 </html>
