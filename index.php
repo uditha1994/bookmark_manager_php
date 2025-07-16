@@ -20,13 +20,11 @@
                     <input type="hidden" name="action" value="add">
                     <div class="mb-3">
                         <label for="title" class="form-label">Title</label>
-                        <input type="text" class="form-control" id="title" 
-                        name="title" required>
+                        <input type="text" class="form-control" id="title" name="title" required>
                     </div>
                     <div class="mb-3">
                         <label for="url" class="form-label">URL</label>
-                        <input type="url" class="form-control" id="url" 
-                        name="url" required>
+                        <input type="url" class="form-control" id="url" name="url" required>
                     </div>
                     <button type="submit" class="btn btn-primary ">Add Bookmark</button>
                 </form>
@@ -34,51 +32,81 @@
         </div>
 
         <!-- Bookmarks list -->
-         <div id="bookmarksList">
+        <div id="bookmarksList">
             <h3 class="mb-3">My Bookmarks</h3>
             <div class="row" id="bookmarksContainer">
                 <!-- Bookmarks will be loaded hear via AJAX -->
             </div>
-         </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         //locad bookmarks when page loaded
-        document.addEventListener('DOMContentLoaded', function(){
+        document.addEventListener('DOMContentLoaded', function () {
             loadBookmarks();
         });
 
         //function to load bookmarks form server
-        function loadBookmarks(){
+        function loadBookmarks() {
             fetch('server.php?action=get')
-            .then(response => response.json())
-            .then(data => {
-                const container = document.getElementById('bookmarksContainer');
-                container.innerHTML = '';
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('bookmarksContainer');
+                    container.innerHTML = '';
 
-                if(data.length === 0){
-                    container.innerHTML = 
-                    '<p class="text-muted">No bookmarks yet. Add your bookmarks!!</p>';
-                }
+                    if (data.length === 0) {
+                        container.innerHTML =
+                            '<p class="text-muted">No bookmarks yet. Add your bookmarks!!</p>';
+                    }
 
-                data.forEach(bookmark => {
-                    const col = document.createElement('div');
-                    col.className = 'col-md-4 mb-4';
-                    col.innerHTML = `
+                    data.forEach(bookmark => {
+                        const col = document.createElement('div');
+                        col.className = 'col-md-4 mb-4';
+                        col.innerHTML = `
                         <div class="card bookmark-card">
                             <div class="card-body">
                                 <h5 class="card-title">${bookmark.title}</h5>
                                 <a href="${bookmark.url}" target="_blank" class="card-link">Visit Site</a>
 
-                                <button class="btn btn-sm btn-danger float-end">Delete</button>
+                                <button onclick="deleteBookmark(${bookmark.id})" class="btn btn-sm btn-danger float-end">Delete</button>
                             </div>
                         </div>
                     `;
-                    container.appendChild(col);
+                        container.appendChild(col);
+                    });
                 });
-            });
         }
+
+        //function to delete a bookmark
+        function deleteBookmark(id) {
+            if (confirm('Are you sure want to delete this bookmark?')) {
+                fetch('server.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `action=delete&id=${id}`
+                })
+                    .then(() => loadBookmarks());
+            }
+        }
+
+
+        //handle form submission with AJX
+        document.getElementById('bookmarkForm')
+            .addEventListener('submit', function (e) {
+                e.preventDefault(); //stop page refresh
+
+                const formData = new FormData(this);
+
+                fetch('server.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(() => {
+                        this.reset();
+                        loadBookmarks();
+                    })
+            })
     </script>
 </body>
 

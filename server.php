@@ -6,7 +6,7 @@ $file = 'bookmarks.json';
 
 //initialize the file if it doesn't exist
 if(!file_exists($file)){
-    file_put_contents($file, []);
+    file_put_contents($file, '[]');
 }
 
 //Get the request action
@@ -46,12 +46,12 @@ switch($action){
 
         $bookmarks = array_filter($bookmarks, 
         function($bookmark) use ($id){
-            return $bookmark['id'] != id;
+            return $bookmark['id'] != $id;
         });
 
         file_put_contents($file, 
         json_encode(array_values($bookmarks), 
-        JSON_PRESERVE_ZERO_FRACTION));
+        JSON_PRETTY_PRINT));
 
         echo json_encode(['status' => 'success']);
         break;
